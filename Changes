@@ -1,5 +1,7 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+
+0.001     2015-07-08 16:23:38+09:00 Asia/Seoul
     - Send sms 1 day before target day or user target day (#2)
     - first release
