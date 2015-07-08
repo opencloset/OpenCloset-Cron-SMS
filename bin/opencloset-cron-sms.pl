@@ -54,7 +54,9 @@ my $worker1 = do {
             my $dt_start = try { $dt_now->clone->truncate( to => 'day' )->add( days => 1 ); };
             return unless $dt_start;
 
-            my $dt_end = try { $dt_now->clone->truncate( to => 'day' )->add( days => 2 )->subtract( seconds => 1 ); };
+            my $dt_end = try {
+                $dt_now->clone->truncate( to => 'day' )->add( days => 2 )->subtract( seconds => 1 );
+            };
             return unless $dt_end;
 
             my $dtf      = $DB->storage->datetime_parser;
@@ -67,44 +69,33 @@ my $worker1 = do {
                             # 반납 예정일 하루 전 오전 11시에 발송
                             'target_date' => \'> user_target_date',
                             'target_date' => {
-                                -between => [
-                                    $dtf->format_datetime($dt_start),
-                                    $dtf->format_datetime($dt_end),
-                                ],
+                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
                             },
 
                         },
                         {
                             # 반납 희망일과 반납 예정일이 동일한 경우
                             # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date' => \'= user_target_date',
+                            'target_date'      => \'= user_target_date',
                             'user_target_date' => {
-                                -between => [
-                                    $dtf->format_datetime($dt_start),
-                                    $dtf->format_datetime($dt_end),
-                                ],
+                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
                             },
                         },
                         {
                             # 반납 희망일이 반납 예정일보다 이후인 경우
                             # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date' => \'< user_target_date',
+                            'target_date'      => \'< user_target_date',
                             'user_target_date' => {
-                                -between => [
-                                    $dtf->format_datetime($dt_start),
-                                    $dtf->format_datetime($dt_end),
-                                ],
+                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
                             },
                         },
                     ],
                 },
-                {
-                    order_by => { -asc => 'user_target_date' },
-                },
+                { order_by => { -asc => 'user_target_date' } },
             );
 
             while ( my $order = $order_rs->next ) {
-                my $to  = $order->user->user_info->phone || q{};
+                my $to = $order->user->user_info->phone || q{};
                 my $msg = sprintf(
                     '[열린옷장] 내일은 %d일에 대여하신 의류 반납일입니다. 내일까지 반납부탁드립니다.',
                     $order->rental_date->day,
@@ -112,13 +103,8 @@ my $worker1 = do {
 
                 my $log = sprintf(
                     'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
-                    $order->id,
-                    $order->user->name,
-                    $to,
-                    $order->rental_date,
-                    $order->target_date,
-                    $order->user_target_date,
-                );
+                    $order->id, $order->user->name, $to, $order->rental_date, $order->target_date,
+                    $order->user_target_date );
                 AE::log( info => $log );
 
                 send_sms( $to, $msg ) if $to;
@@ -140,11 +126,13 @@ $cron->start;
 sub send_sms {
     my ( $to, $text ) = @_;
 
-    my $sms = $DB->resultset('SMS')->create({
-        from => $SMS_CONF->{ $SMS_CONF->{driver} }{_from},
-        to   => $to,
-        text => $text,
-    });
+    my $sms = $DB->resultset('SMS')->create(
+        {
+            from => $SMS_CONF->{ $SMS_CONF->{driver} }{_from},
+            to   => $to,
+            text => $text,
+        }
+    );
     return unless $sms;
 
     my %data = ( $sms->get_columns );
