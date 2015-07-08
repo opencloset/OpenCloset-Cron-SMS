@@ -1,4 +1,5 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - Send sms 1 day before target day or user target day (#2)
     - first release
