@@ -1,6 +1,9 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - Update pod document
+    - opencloset-cron-sms.pl checks config file before execute
+    - Remove time zone supports monkey patch (#4)
 
 0.001     2015-07-08 16:23:38+09:00 Asia/Seoul
     - Send sms 1 day before target day or user target day (#2)

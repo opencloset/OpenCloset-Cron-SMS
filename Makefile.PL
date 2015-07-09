@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use 5.010;
+use 5.008;
 
 use ExtUtils::MakeMaker 6.17;
 
@@ -16,19 +16,16 @@ my %WriteMakefileArgs = (
     "bin/opencloset-cron-sms.pl"
   ],
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.010",
+  "MIN_PERL_VERSION" => "5.008",
   "NAME" => "OpenCloset::Cron::SMS",
   "PREREQ_PM" => {
-    "AnyEvent" => 0,
     "DateTime" => 0,
     "FindBin" => 0,
     "Getopt::Long::Descriptive" => 0,
-    "Moo" => 0,
-    "MooX::Types::MooseLike::Base" => 0,
     "OpenCloset::Config" => "0.002",
-    "OpenCloset::Cron" => "0.002",
+    "OpenCloset::Cron" => "0.003",
+    "OpenCloset::Cron::Worker" => 0,
     "OpenCloset::Schema" => "0.012",
-    "Scalar::Util" => 0,
     "Try::Tiny" => 0,
     "strict" => 0,
     "utf8" => 0,
@@ -47,18 +44,15 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "AnyEvent" => 0,
   "DateTime" => 0,
   "ExtUtils::MakeMaker" => "6.17",
   "File::Spec" => 0,
   "FindBin" => 0,
   "Getopt::Long::Descriptive" => 0,
-  "Moo" => 0,
-  "MooX::Types::MooseLike::Base" => 0,
   "OpenCloset::Config" => "0.002",
-  "OpenCloset::Cron" => "0.002",
+  "OpenCloset::Cron" => "0.003",
+  "OpenCloset::Cron::Worker" => 0,
   "OpenCloset::Schema" => "0.012",
-  "Scalar::Util" => 0,
   "Test::More" => 0,
   "Try::Tiny" => 0,
   "strict" => 0,

@@ -1,15 +1,12 @@
-requires "AnyEvent" => "0";
 requires "DateTime" => "0";
 requires "FindBin" => "0";
 requires "Getopt::Long::Descriptive" => "0";
-requires "Moo" => "0";
-requires "MooX::Types::MooseLike::Base" => "0";
 requires "OpenCloset::Config" => "0.002";
-requires "OpenCloset::Cron" => "0.002";
+requires "OpenCloset::Cron" => "0.003";
+requires "OpenCloset::Cron::Worker" => "0";
 requires "OpenCloset::Schema" => "0.012";
-requires "Scalar::Util" => "0";
 requires "Try::Tiny" => "0";
-requires "perl" => "5.010";
+requires "perl" => "5.008";
 requires "strict" => "0";
 requires "utf8" => "0";
 requires "warnings" => "0";
@@ -18,7 +15,7 @@ on 'test' => sub {
   requires "ExtUtils::MakeMaker" => "0";
   requires "File::Spec" => "0";
   requires "Test::More" => "0";
-  requires "perl" => "5.010";
+  requires "perl" => "5.008";
 };
 
 on 'test' => sub {
@@ -27,7 +24,7 @@ on 'test' => sub {
 
 on 'configure' => sub {
   requires "ExtUtils::MakeMaker" => "6.17";
-  requires "perl" => "5.010";
+  requires "perl" => "5.008";
 };
 
 on 'develop' => sub {
