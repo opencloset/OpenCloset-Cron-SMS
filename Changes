@@ -1,6 +1,7 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - Update pod document
     - opencloset-cron-sms.pl checks config file before execute
     - Remove time zone supports monkey patch (#4)
 
