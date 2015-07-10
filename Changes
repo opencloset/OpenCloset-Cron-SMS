@@ -1,9 +1,6 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
-    - Send sms 3 day after target day or user target day (#1)
-    - Fix datetime calculation bug (#2)
-    - Send sms 2 day after target day or user target day (#1)
 
 0.002     2015-07-09 20:59:39+09:00 Asia/Seoul
     - Update pod document
