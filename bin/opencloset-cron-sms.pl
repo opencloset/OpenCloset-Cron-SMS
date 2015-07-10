@@ -67,7 +67,6 @@ my $worker1 = do {
             };
             return unless $dt_end;
 
-            my $dtf = $DB->storage->datetime_parser;
             my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $to = $order->user->user_info->phone || q{};
@@ -117,7 +116,6 @@ my $worker2 = do {
             };
             return unless $dt_end;
 
-            my $dtf = $DB->storage->datetime_parser;
             my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $to = $order->user->user_info->phone || q{};
@@ -167,7 +165,6 @@ my $worker3 = do {
             };
             return unless $dt_end;
 
-            my $dtf = $DB->storage->datetime_parser;
             my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $ocs = OpenCloset::Cron::SMS->new(
@@ -232,6 +229,7 @@ sub get_where {
     my ( $dt_start, $dt_end ) = @_;
 
     my ( $lquote, $rquote, $sep ) = get_quote();
+    my $dtf = $DB->storage->datetime_parser;
 
     my $cond = {
         status_id => 2,
