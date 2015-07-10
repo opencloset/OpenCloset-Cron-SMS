@@ -94,7 +94,7 @@ my $worker2 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_2_day_after',
-        cron      => '00 11 * * *',
+        cron      => '55 10 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
             my $name = $w->name;
@@ -144,7 +144,7 @@ my $worker3 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_3_day_after',
-        cron      => '00 11 * * *',
+        cron      => '50 10 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
             my $name = $w->name;
