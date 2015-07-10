@@ -1,6 +1,7 @@
 requires "DateTime" => "0";
 requires "FindBin" => "0";
 requires "Getopt::Long::Descriptive" => "0";
+requires "Moo" => "0";
 requires "OpenCloset::Config" => "0.002";
 requires "OpenCloset::Cron" => "0.003";
 requires "OpenCloset::Cron::Worker" => "0";

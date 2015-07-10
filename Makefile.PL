@@ -22,6 +22,7 @@ my %WriteMakefileArgs = (
     "DateTime" => 0,
     "FindBin" => 0,
     "Getopt::Long::Descriptive" => 0,
+    "Moo" => 0,
     "OpenCloset::Config" => "0.002",
     "OpenCloset::Cron" => "0.003",
     "OpenCloset::Cron::Worker" => 0,
@@ -36,7 +37,7 @@ my %WriteMakefileArgs = (
     "File::Spec" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.002",
+  "VERSION" => "0.003",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -49,6 +50,7 @@ my %FallbackPrereqs = (
   "File::Spec" => 0,
   "FindBin" => 0,
   "Getopt::Long::Descriptive" => 0,
+  "Moo" => 0,
   "OpenCloset::Config" => "0.002",
   "OpenCloset::Cron" => "0.003",
   "OpenCloset::Cron::Worker" => 0,
