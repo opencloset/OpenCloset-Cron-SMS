@@ -210,11 +210,101 @@ my $worker2 = do {
     );
 };
 
+my $worker3 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
+        name      => 'notify_3_day_after',
+        cron      => '00 11 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            #
+            # get today datetime
+            #
+            my $dt_now = try { DateTime->now( time_zone => $TIMEZONE ); };
+            return unless $dt_now;
+
+            my $dt_start =
+                try { $dt_now->clone->truncate( to => 'day' )->subtract( days => 3 ); };
+            return unless $dt_start;
+
+            my $dt_end = try {
+                $dt_now->clone->truncate( to => 'day' )->subtract( days => 2 )
+                    ->subtract( seconds => 1 );
+            };
+            return unless $dt_end;
+
+            my ( $lquote, $rquote, $sep ) = get_quote();
+
+            my $dtf      = $DB->storage->datetime_parser;
+            my $order_rs = $DB->resultset('Order')->search(
+                {
+                    status_id => 2,
+                    -or       => [
+                        {
+                            # 반납 희망일이 반납 예정일보다 이른 경우
+                            # 반납 예정일 3일 후 오전 11시에 발송
+                            'target_date' => [
+                                '-and',
+                                \"> ${lquote}user_target_date${rquote}",
+                                { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
+                            ],
+                        },
+                        {
+                            # 반납 희망일과 반납 예정일이 동일한 경우
+                            # 반납 희망일 3일 후 오전 11시에 발송
+                            'target_date'      => { -ident => 'user_target_date' },
+                            'user_target_date' => {
+                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
+                            },
+                        },
+                        {
+                            # 반납 희망일이 반납 예정일보다 이후인 경우
+                            # 반납 희망일 3일 후 오전 11시에 발송
+                            'target_date'      => \"< ${lquote}user_target_date${rquote}",
+                            'user_target_date' => {
+                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
+                            },
+                        },
+                    ],
+                },
+                { order_by => { -asc => 'user_target_date' } },
+            );
+
+            while ( my $order = $order_rs->next ) {
+                my $ocs = OpenCloset::Cron::SMS->new(
+                    order    => $order,
+                    timezone => $TIMEZONE,
+                );
+
+                my $to = $order->user->user_info->phone || q{};
+                my $msg = sprintf(
+                    '[열린옷장] %s님, 의류 반납이 지체되고 있습니다. 추가 금액은 하루에 대여료의 20%%씩 부과됩니다. 현재 %s님의 추가 금액은 %s원입니다.',
+                    $order->user->name, $order->user->name, $ocs->commify( $ocs->calc_late_fee ),
+                );
+
+                my $log = sprintf(
+                    'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
+                    $order->id, $order->user->name, $to, $order->rental_date, $order->target_date,
+                    $order->user_target_date );
+                AE::log( info => $log );
+
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        },
+    );
+};
+
 my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2 ],
+    workers => [ $worker1, $worker2, $worker3 ],
 );
 $cron->start;
 
