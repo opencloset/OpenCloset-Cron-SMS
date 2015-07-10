@@ -216,7 +216,9 @@ sub send_sms {
     return \%data;
 }
 
-sub get_quote { ( $DB->storage->sql_maker->_quote_chars, $sql_maker->name_sep ) }
+sub get_quote {
+    return ( $DB->storage->sql_maker->_quote_chars, $DB->storage->sql_maker->name_sep );
+}
 
 sub get_where {
     my ( $dt_start, $dt_end ) = @_;
