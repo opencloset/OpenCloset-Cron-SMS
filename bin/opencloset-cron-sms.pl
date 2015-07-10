@@ -67,6 +67,8 @@ my $worker1 = do {
             };
             return unless $dt_end;
 
+            my ( $lquote, $rquote, $sep ) = get_quote();
+
             my $dtf      = $DB->storage->datetime_parser;
             my $order_rs = $DB->resultset('Order')->search(
                 {
@@ -75,16 +77,16 @@ my $worker1 = do {
                         {
                             # 반납 희망일이 반납 예정일보다 이른 경우
                             # 반납 예정일 하루 전 오전 11시에 발송
-                            'target_date' => \'> user_target_date',
-                            'target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-
+                            'target_date' => [
+                                '-and',
+                                \"> ${lquote}user_target_date${rquote}",
+                                { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
+                            ],
                         },
                         {
                             # 반납 희망일과 반납 예정일이 동일한 경우
                             # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date'      => \'= user_target_date',
+                            'target_date'      => { -ident => 'user_target_date' },
                             'user_target_date' => {
                                 -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
                             },
@@ -92,7 +94,7 @@ my $worker1 = do {
                         {
                             # 반납 희망일이 반납 예정일보다 이후인 경우
                             # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date'      => \'< user_target_date',
+                            'target_date'      => \"< ${lquote}user_target_date${rquote}",
                             'user_target_date' => {
                                 -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
                             },
