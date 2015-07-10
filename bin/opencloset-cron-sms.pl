@@ -67,43 +67,8 @@ my $worker1 = do {
             };
             return unless $dt_end;
 
-            my ( $lquote, $rquote, $sep ) = get_quote();
-
-            my $dtf      = $DB->storage->datetime_parser;
-            my $order_rs = $DB->resultset('Order')->search(
-                {
-                    status_id => 2,
-                    -or       => [
-                        {
-                            # 반납 희망일이 반납 예정일보다 이른 경우
-                            # 반납 예정일 하루 전 오전 11시에 발송
-                            'target_date' => [
-                                '-and',
-                                \"> ${lquote}user_target_date${rquote}",
-                                { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
-                            ],
-                        },
-                        {
-                            # 반납 희망일과 반납 예정일이 동일한 경우
-                            # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date'      => { -ident => 'user_target_date' },
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                        {
-                            # 반납 희망일이 반납 예정일보다 이후인 경우
-                            # 반납 희망일 하루 전 오전 11시에 발송
-                            'target_date'      => \"< ${lquote}user_target_date${rquote}",
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                    ],
-                },
-                { order_by => { -asc => 'user_target_date' } },
-            );
-
+            my $dtf = $DB->storage->datetime_parser;
+            my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $to = $order->user->user_info->phone || q{};
                 my $msg = sprintf(
@@ -152,43 +117,8 @@ my $worker2 = do {
             };
             return unless $dt_end;
 
-            my ( $lquote, $rquote, $sep ) = get_quote();
-
-            my $dtf      = $DB->storage->datetime_parser;
-            my $order_rs = $DB->resultset('Order')->search(
-                {
-                    status_id => 2,
-                    -or       => [
-                        {
-                            # 반납 희망일이 반납 예정일보다 이른 경우
-                            # 반납 예정일 이틀 후 오전 11시에 발송
-                            'target_date' => [
-                                '-and',
-                                \"> ${lquote}user_target_date${rquote}",
-                                { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
-                            ],
-                        },
-                        {
-                            # 반납 희망일과 반납 예정일이 동일한 경우
-                            # 반납 희망일 이틀 후 오전 11시에 발송
-                            'target_date'      => { -ident => 'user_target_date' },
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                        {
-                            # 반납 희망일이 반납 예정일보다 이후인 경우
-                            # 반납 희망일 이틀 후 오전 11시에 발송
-                            'target_date'      => \"< ${lquote}user_target_date${rquote}",
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                    ],
-                },
-                { order_by => { -asc => 'user_target_date' } },
-            );
-
+            my $dtf = $DB->storage->datetime_parser;
+            my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $to = $order->user->user_info->phone || q{};
                 my $msg = sprintf(
@@ -237,43 +167,8 @@ my $worker3 = do {
             };
             return unless $dt_end;
 
-            my ( $lquote, $rquote, $sep ) = get_quote();
-
-            my $dtf      = $DB->storage->datetime_parser;
-            my $order_rs = $DB->resultset('Order')->search(
-                {
-                    status_id => 2,
-                    -or       => [
-                        {
-                            # 반납 희망일이 반납 예정일보다 이른 경우
-                            # 반납 예정일 3일 후 오전 11시에 발송
-                            'target_date' => [
-                                '-and',
-                                \"> ${lquote}user_target_date${rquote}",
-                                { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
-                            ],
-                        },
-                        {
-                            # 반납 희망일과 반납 예정일이 동일한 경우
-                            # 반납 희망일 3일 후 오전 11시에 발송
-                            'target_date'      => { -ident => 'user_target_date' },
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                        {
-                            # 반납 희망일이 반납 예정일보다 이후인 경우
-                            # 반납 희망일 3일 후 오전 11시에 발송
-                            'target_date'      => \"< ${lquote}user_target_date${rquote}",
-                            'user_target_date' => {
-                                -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
-                            },
-                        },
-                    ],
-                },
-                { order_by => { -asc => 'user_target_date' } },
-            );
-
+            my $dtf = $DB->storage->datetime_parser;
+            my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $ocs = OpenCloset::Cron::SMS->new(
                     order    => $order,
@@ -331,4 +226,42 @@ sub get_quote {
     my ( $lquote, $rquote, $sep ) = ( $sql_maker->_quote_chars, $sql_maker->name_sep );
 
     return ( $lquote, $rquote, $sep );
+}
+
+sub get_where {
+    my ( $dt_start, $dt_end ) = @_;
+
+    my ( $lquote, $rquote, $sep ) = get_quote();
+
+    my $cond = {
+        status_id => 2,
+        -or       => [
+            {
+                # 반납 희망일이 반납 예정일보다 이른 경우 반납 예정일을 기준으로 함
+                'target_date' => [
+                    '-and',
+                    \"> ${lquote}user_target_date${rquote}",
+                    { -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ] },
+                ],
+            },
+            {
+                # 반납 희망일과 반납 예정일이 동일한 경우 반납 희망일을 기준으로 함
+                'target_date'      => { -ident => 'user_target_date' },
+                'user_target_date' => {
+                    -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
+                },
+            },
+            {
+                # 반납 희망일이 반납 예정일보다 이후인 경우 반납 희망일을 기준으로 함
+                'target_date'      => \"< ${lquote}user_target_date${rquote}",
+                'user_target_date' => {
+                    -between => [ $dtf->format_datetime($dt_start), $dtf->format_datetime($dt_end) ],
+                },
+            },
+        ],
+    };
+
+    my $attr = { order_by => { -asc => 'user_target_date' } };
+
+    return ( $cond, $attr );
 }
