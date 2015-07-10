@@ -216,14 +216,7 @@ sub send_sms {
     return \%data;
 }
 
-sub get_quote {
-    my $o_rs      = $DB->resultset('Order');
-    my $rsrc      = $o_rs->result_source;
-    my $sql_maker = $rsrc->storage->sql_maker;
-    my ( $lquote, $rquote, $sep ) = ( $sql_maker->_quote_chars, $sql_maker->name_sep );
-
-    return ( $lquote, $rquote, $sep );
-}
+sub get_quote { ( $DB->storage->sql_maker->_quote_chars, $sql_maker->name_sep ) }
 
 sub get_where {
     my ( $dt_start, $dt_end ) = @_;
