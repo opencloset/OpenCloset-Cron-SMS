@@ -195,7 +195,7 @@ my $worker3 = do {
 my $worker4 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
-        name      => 'volunteer_daily_guestbook',
+        name      => 'notify_today_volunteer_for_guestbook',
         cron      => '00 19 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
@@ -223,8 +223,13 @@ my $worker4 = do {
                 my $volunteer = $row->volunteer;
                 my $to        = $volunteer->phone;
                 my $msg       = sprintf(
-                    '수고하셨습니다. 오늘 봉사활동 어떠셨나요? https://volunteer.theopencloset.net/works/%s/guestbook?authcode=%s 에서 방명록을 적어주세요. 다음 봉사자들을 위해 활용됩니다.',
+                    '수고하셨습니다. 오늘 봉사활동 어떠셨나요? 다음 주소에 접속해 방명록을 남겨주세요. 남겨주신 방명록은 다음 봉사자 분들을 위해 활용됩니다. https://volunteer.theopencloset.net/works/%s/guestbook?authcode=%s',
                     $row->id, $row->authcode );
+
+                my $log = sprintf( 'id(%d), volunteer_id(%d), name(%s), phone(%s), authcode(%s)',
+                    $row->id, $volunteer->id, $volunteer->name, $to, $row->authcode );
+                AE::log( info => $log );
+
                 send_sms( $to, $msg ) if $to;
             }
 
