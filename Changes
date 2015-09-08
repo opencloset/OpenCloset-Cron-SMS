@@ -1,6 +1,7 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - Send sms to today's volunteers for guestbook (#7, volunteer#12)
 
 0.003     2015-07-10 18:02:35+09:00 Asia/Seoul
     - Send sms 3 day after target day or user target day (#1)
