@@ -192,11 +192,52 @@ my $worker3 = do {
     );
 };
 
+my $worker4 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
+        name      => 'volunteer_daily_guestbook',
+        cron      => '00 19 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            #
+            # get today datetime
+            #
+            my $dt_start = DateTime->now( time_zone => $TIMEZONE )->truncate( to => 'day' );
+            my $dt_end = $dt_start->clone->add( days => 1 );
+            my $parser = $DB->storage->datetime_parser;
+            my $rs     = $DB->resultset('VolunteerWork')->search(
+                {
+                    status             => 'done',
+                    activity_from_date => {
+                        -between =>
+                            [ $parser->format_datetime($dt_start), $parser->format_datetime($dt_end) ]
+                    }
+                }
+            );
+
+            while ( my $row = $rs->next ) {
+                my $volunteer = $row->volunteer;
+                my $to        = $volunteer->phone;
+                my $msg       = sprintf(
+                    '수고하셨습니다. 오늘 봉사활동 어떠셨나요? https://volunteer.theopencloset.net/works/%s/guestbook?authcode=%s 에서 방명록을 적어주세요. 다음 봉사자들을 위해 활용됩니다.',
+                    $row->id, $row->authcode );
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        }
+    );
+};
+
 my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2, $worker3 ],
+    workers => [ $worker1, $worker2, $worker3, $worker4 ],
 );
 $cron->start;
 
