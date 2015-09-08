@@ -46,7 +46,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "DateTime" => 0,
-  "ExtUtils::MakeMaker" => "6.17",
+  "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "FindBin" => 0,
   "Getopt::Long::Descriptive" => 0,
