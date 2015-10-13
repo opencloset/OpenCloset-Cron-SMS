@@ -4,7 +4,7 @@ package OpenCloset::Cron::SMS;
 use utf8;
 use Moo;
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 use DateTime;
 
