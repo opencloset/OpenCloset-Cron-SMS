@@ -221,8 +221,8 @@ my $worker4 = do {
 
             while ( my $row = $rs->next ) {
                 my $volunteer = $row->volunteer;
-                my $to        = $volunteer->phone =~ s/-//gr;
-                my $msg       = sprintf(
+                ( my $to = $volunteer->phone ) =~ s/-//g;
+                my $msg = sprintf(
                     '수고하셨습니다. 오늘 봉사활동 어떠셨나요? 다음 주소에 접속해 방명록을 남겨주세요. 남겨주신 방명록은 다음 봉사자 분들을 위해 활용됩니다. https://volunteer.theopencloset.net/works/%s/guestbook?authcode=%s',
                     $row->id, $row->authcode );
 
