@@ -1,6 +1,7 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - 택배반납후 운송장을 작성한 사용자에게는 독촉 문자를 보내지 않음
 
 0.005     2015-10-13 17:49:20+09:00 Asia/Seoul
     - Remove `-` mark at recipient numbers (#8, volunteer#36)
