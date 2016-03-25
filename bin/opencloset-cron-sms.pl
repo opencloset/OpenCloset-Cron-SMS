@@ -238,11 +238,57 @@ my $worker4 = do {
     );
 };
 
+my $worker5 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
+        name      => 'notify_today_preserved_volunteers',
+        cron      => '00 08 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            #
+            # get today datetime
+            #
+            my $dt_start = DateTime->now( time_zone => $TIMEZONE )->truncate( to => 'day' );
+            my $dt_end = $dt_start->clone->add( days => 1 );
+            my $parser = $DB->storage->datetime_parser;
+            my $rs     = $DB->resultset('VolunteerWork')->search(
+                {
+                    status             => 'done',
+                    activity_from_date => {
+                        -between =>
+                            [ $parser->format_datetime($dt_start), $parser->format_datetime($dt_end) ]
+                    }
+                }
+            );
+
+            while ( my $row = $rs->next ) {
+                my $volunteer = $row->volunteer;
+                ( my $to = $volunteer->phone ) =~ s/-//g;
+                my $msg = sprintf(
+                    '[열린옷장] %s님 안녕하세요 좋은 아침입니다:) 오늘은 열린옷장과 함께 봉사활동 하는 날인 것 잊지 않으셨죠? 이따 밝은 모습으로 뵙겠습니다!',
+                    $volunteer->name );
+
+                my $log = sprintf( 'id(%d), volunteer_id(%d), name(%s), phone(%s)',
+                    $row->id, $volunteer->id, $volunteer->name, $to );
+                AE::log( info => $log );
+
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        }
+    );
+};
+
 my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2, $worker3, $worker4 ],
+    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5 ],
 );
 $cron->start;
 
