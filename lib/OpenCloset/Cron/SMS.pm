@@ -61,7 +61,7 @@ sub calc_late_fee {
     my $overdue = $self->_calc_overdue( $self->order );
     return 0 unless $overdue;
 
-    my $late_fee = $price * 0.2 * $overdue;
+    my $late_fee = $price * 0.3 * $overdue;
 
     return $late_fee;
 }
