@@ -174,7 +174,7 @@ my $worker3 = do {
 
                 my $to = $order->user->user_info->phone || q{};
                 my $msg = sprintf(
-                    '[열린옷장] %s님, 의류 반납이 지체되고 있습니다. 추가 금액은 하루에 대여료의 20%%씩 부과됩니다. 현재 %s님의 추가 금액은 %s원입니다.',
+                    '[열린옷장] %s님, 의류 반납이 지체되고 있습니다. 추가 금액은 하루에 대여료의 30%%씩 부과됩니다. 현재 %s님의 추가 금액은 %s원입니다.',
                     $order->user->name, $order->user->name, $ocs->commify( $ocs->calc_late_fee ),
                 );
 
