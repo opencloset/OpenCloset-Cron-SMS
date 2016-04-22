@@ -257,7 +257,7 @@ my $worker5 = do {
             my $parser = $DB->storage->datetime_parser;
             my $rs     = $DB->resultset('VolunteerWork')->search(
                 {
-                    status             => 'done',
+                    status             => 'approved',
                     activity_from_date => {
                         -between =>
                             [ $parser->format_datetime($dt_start), $parser->format_datetime($dt_end) ]
