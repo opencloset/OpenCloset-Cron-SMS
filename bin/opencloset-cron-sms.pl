@@ -415,6 +415,7 @@ sub get_where {
     my $cond = {
         status_id     => 2,
         return_method => undef,
+        ignore_sms    => [ undef, 0 ],
         -or           => [
             {
                 # 반납 희망일이 반납 예정일보다 이른 경우 반납 예정일을 기준으로 함
