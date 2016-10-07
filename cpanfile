@@ -28,6 +28,10 @@ on 'configure' => sub {
   requires "perl" => "5.008";
 };
 
+on 'configure' => sub {
+  suggests "JSON::PP" => "2.27300";
+};
+
 on 'develop' => sub {
   requires "Dist::Zilla" => "5";
   requires "Dist::Zilla::Plugin::Prereqs" => "0";
@@ -44,7 +48,9 @@ on 'develop' => sub {
   requires "Test::More" => "0";
   requires "Test::Pod" => "1.41";
   requires "Test::Pod::Coverage" => "1.08";
+  requires "Test::Portability::Files" => "0";
   requires "Test::Spelling" => "0.12";
   requires "Test::Version" => "1";
+  requires "blib" => "1.01";
   requires "perl" => "5.006";
 };
