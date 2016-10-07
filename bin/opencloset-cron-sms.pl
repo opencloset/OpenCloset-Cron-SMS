@@ -92,7 +92,7 @@ my $worker1 = do {
 my $worker2 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
-        name      => 'notify_2_day_after',
+        name      => 'notify_2_day_after', # D+2
         cron      => '55 10 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
@@ -118,15 +118,15 @@ my $worker2 = do {
 
             my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
-                my $to = $order->user->user_info->phone || q{};
-                my $msg = sprintf(
-                    '[열린옷장] %d일에 대여하신 의류가 반납되지 않았습니다. 빠른 반납 부탁드립니다.',
-                    $order->rental_date->day,
-                );
+                my $user = $order->user;
+                my $to   = $user->user_info->phone || q{};
+                my $msg  = sprintf(
+                    '[열린옷장] %s님 대여하신 의류의 반납이 2일 연체되었습니다. 반납이 늦어질수록 연체료 부담이 커집니다. 대여 품목 확인 후, 금일 중으로 빠른 반납 요청드립니다.',
+                    $user->name );
 
                 my $log = sprintf(
                     'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
-                    $order->id, $order->user->name, $to, $order->rental_date, $order->target_date,
+                    $order->id, $user->name, $to, $order->rental_date, $order->target_date,
                     $order->user_target_date );
                 AE::log( info => $log );
 
