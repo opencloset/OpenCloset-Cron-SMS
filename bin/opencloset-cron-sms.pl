@@ -46,7 +46,7 @@ my $worker1 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_1_day_before', # D-1
-        cron      => '00 11 * * *',
+        cron      => '30 11 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
             my $name = $w->name;
