@@ -92,6 +92,52 @@ my $worker1 = do {
 my $worker2 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
+        name      => 'notify_D_day', # D-day
+        cron      => '40 11 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            #
+            # get today datetime
+            #
+            my $today = DateTime->today( time_zone => $TIMEZONE );
+            return unless $today;
+
+            my $tomorrow = $today->clone->add( days => 1 );
+            return unless $tomorrow;
+
+            my $order_rs = $DB->resultset('Order')->search( get_where( $today, $tomorrow ) );
+            while ( my $order = $order_rs->next ) {
+                my $user     = $order->user;
+                my $to       = $user->user_info->phone || q{};
+                my $order_id = $order->id;
+                my $msg      = sprintf(
+                    qq{[열린옷장] 오늘은 %d일에 대여하신 의류 반납일입니다. 운영시간(10시~18시) 중에는 웅진빌딩 403호로 반납해 주시고, 운영 외 시간에는 22시까지 4층 엘리베이터 앞에 무인반납함에 반납해 주세요. 대여 기간 연장이 필요하신 경우, (%s)에서 대여기간을 연장해 주세요. (연장없이 무단으로 반납이 늦어지면 연체 처리 되어 하루 당 대여료의 30%%의 추가 비용이 발생합니다.) 택배로 발송하신 경우 (%s)에서 택배사, 운송장번호를 등록해 주세요. (발송알리미 미입력시 택배발송 지연으로 인해 연체처리가 될 수 있습니다.)},
+                    $order->rental_date->day,
+                    "https://staff.theopencloset.net/order/$order_id/extension",
+                    "https://staff.theopencloset.net/order/$order_id/return"
+                );
+
+                my $log = sprintf(
+                    'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
+                    $order->id, $user->name, $to, $order->rental_date, $order->target_date,
+                    $order->user_target_date );
+                AE::log( info => $log );
+
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        },
+    );
+};
+
+my $worker3 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_2_day_after', # D+2
         cron      => '35 11 * * *',
         time_zone => $TIMEZONE,
@@ -138,7 +184,7 @@ my $worker2 = do {
     );
 };
 
-my $worker3 = do {
+my $worker4 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_3_day_after', # D+3
@@ -192,7 +238,7 @@ my $worker3 = do {
     );
 };
 
-my $worker4 = do {
+my $worker5 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_today_volunteer_for_guestbook',
@@ -238,7 +284,7 @@ my $worker4 = do {
     );
 };
 
-my $worker5 = do {
+my $worker6 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_today_preserved_volunteers',
@@ -288,7 +334,7 @@ my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5 ],
+    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5, $worker6 ],
 );
 $cron->start;
 
