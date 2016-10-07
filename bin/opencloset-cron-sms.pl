@@ -106,10 +106,13 @@ my $worker2 = do {
             my $today = DateTime->today( time_zone => $TIMEZONE );
             return unless $today;
 
-            my $tomorrow = $today->clone->add( days => 1 );
-            return unless $tomorrow;
+            my $dt_start = $today->clone;
+            return unless $dt_start;
 
-            my $order_rs = $DB->resultset('Order')->search( get_where( $today, $tomorrow ) );
+            my $dt_end = $today->clone->add( days => 1 )->subtract( seconds => 1 );
+            return unless $dt_start;
+
+            my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
             while ( my $order = $order_rs->next ) {
                 my $user     = $order->user;
                 my $to       = $user->user_info->phone || q{};
