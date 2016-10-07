@@ -138,6 +138,51 @@ my $worker2 = do {
 my $worker3 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
+        name      => 'notify_1_day_after', # D+1
+        cron      => '45 11 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            #
+            # get today datetime
+            #
+            my $today = DateTime->today( time_zone => $TIMEZONE );
+            return unless $today;
+
+            my $dt_start = $today->clone->subtract( days => 1 );
+            return unless $dt_start;
+
+            my $dt_end = $today->clone->subtract( seconds => 1 );
+            return unless $dt_end;
+
+            my $order_rs = $DB->resultset('Order')->search( get_where( $dt_start, $dt_end ) );
+            while ( my $order = $order_rs->next ) {
+                my $user = $order->user;
+                my $to   = $user->user_info->phone || q{};
+                my $msg  = sprintf(
+                    qq{[열린옷장] %s님 대여하신 의류의 반납이 1일 연체되었습니다. 대여품목 확인 후, 금일 중으로 빠른 반납 부탁드립니다.},
+                    $user->name );
+
+                my $log = sprintf(
+                    'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
+                    $order->id, $user->name, $to, $order->rental_date, $order->target_date,
+                    $order->user_target_date );
+                AE::log( info => $log );
+
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        },
+    );
+};
+
+my $worker4 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_2_day_after', # D+2
         cron      => '35 11 * * *',
         time_zone => $TIMEZONE,
@@ -184,7 +229,7 @@ my $worker3 = do {
     );
 };
 
-my $worker4 = do {
+my $worker5 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_3_day_after', # D+3
@@ -238,7 +283,7 @@ my $worker4 = do {
     );
 };
 
-my $worker5 = do {
+my $worker6 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_today_volunteer_for_guestbook',
@@ -284,7 +329,7 @@ my $worker5 = do {
     );
 };
 
-my $worker6 = do {
+my $worker7 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_today_preserved_volunteers',
@@ -334,7 +379,7 @@ my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5, $worker6 ],
+    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5, $worker6, $worker7 ],
 );
 $cron->start;
 
