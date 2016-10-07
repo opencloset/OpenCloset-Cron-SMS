@@ -141,7 +141,7 @@ my $worker2 = do {
 my $worker3 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
-        name      => 'notify_3_day_after',
+        name      => 'notify_3_day_after', # D+3
         cron      => '50 10 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
@@ -172,15 +172,15 @@ my $worker3 = do {
                     timezone => $TIMEZONE,
                 );
 
-                my $to = $order->user->user_info->phone || q{};
-                my $msg = sprintf(
-                    '[열린옷장] %s님, 의류 반납이 지체되고 있습니다. 추가 금액은 하루에 대여료의 30%%씩 부과됩니다. 현재 %s님의 추가 금액은 %s원입니다.',
-                    $order->user->name, $order->user->name, $ocs->commify( $ocs->calc_late_fee ),
-                );
+                my $user = $order->user;
+                my $to   = $user->user_info->phone || q{};
+                my $msg  = sprintf(
+                    '[열린옷장] %s님 대여하신 의류의 반납이 3일 연체되었습니다. 반납기한이 도래하면 대여 물품을 반환하여야 함에도 불구하고 고의로 그 반환을 거부하는 경우에는 횡령죄가 성립될 수 있습니다. 반납과 관련하여 전화연락 등 반납의사를 표현하지 않는 경우에는 반납의사가 존재하지 않는 것으로 간주되오니 대여 품목 확인 후, 금일 중으로 빠른 반납 요청드립니다.',
+                    $user->name );
 
                 my $log = sprintf(
                     'id(%d), name(%s), phone(%s), rental_date(%s), target_date(%s), user_target_date(%s)',
-                    $order->id, $order->user->name, $to, $order->rental_date, $order->target_date,
+                    $order->id, $user->name, $to, $order->rental_date, $order->target_date,
                     $order->user_target_date );
                 AE::log( info => $log );
 
