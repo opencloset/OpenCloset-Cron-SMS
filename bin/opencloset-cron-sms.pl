@@ -45,7 +45,7 @@ my $DB = OpenCloset::Schema->connect(
 my $worker1 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
-        name      => 'notify_1_day_before',
+        name      => 'notify_1_day_before', # D-1
         cron      => '00 11 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
@@ -71,7 +71,7 @@ my $worker1 = do {
             while ( my $order = $order_rs->next ) {
                 my $to = $order->user->user_info->phone || q{};
                 my $msg = sprintf(
-                    '[열린옷장] 내일은 %d일에 대여하신 의류 반납일입니다. 내일까지 반납부탁드립니다.',
+                    '[열린옷장] 내일은 %d일에 대여하신 의류 반납일입니다. 내일까지 반납부탁드립니다. 택배로 반납하실 경우, 오늘까지 택배사에 접수해 주셔야 추가 비용이 발생하지 않습니다.',
                     $order->rental_date->day,
                 );
 
