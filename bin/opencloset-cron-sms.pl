@@ -465,7 +465,7 @@ sub is_holiday {
     my $holidays = Date::Holidays::KR::holidays($year);
     return 1 if $holidays->{ $month . $day };
 
-    if ( my $ini = $CONF->{extra_holidays} ) {
+    if ( my $ini = $ENV{OPENCLOSET_EXTRA_HOLIDAYS} ) {
         my $extra_holidays = Config::INI::Reader->read_file($ini);
         return $extra_holidays->{$year}{ $month . $day };
     }
