@@ -1,3 +1,5 @@
+requires "Config::INI::Reader" => "0";
+requires "Date::Holidays::KR" => "0";
 requires "DateTime" => "0";
 requires "FindBin" => "0";
 requires "Getopt::Long::Descriptive" => "0";
