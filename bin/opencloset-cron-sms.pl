@@ -9,6 +9,8 @@ use warnings;
 use FindBin qw( $Script );
 use Getopt::Long::Descriptive;
 
+use Config::INI::Reader;
+use Date::Holidays::KR ();
 use DateTime;
 use Try::Tiny;
 
@@ -155,6 +157,8 @@ my $worker3 = do {
             my $today = DateTime->today( time_zone => $TIMEZONE );
             return unless $today;
 
+            return if is_holiday($today);
+
             my $dt_start = $today->clone->subtract( days => 1 );
             return unless $dt_start;
 
@@ -199,6 +203,8 @@ my $worker4 = do {
             #
             my $dt_now = try { DateTime->now( time_zone => $TIMEZONE ); };
             return unless $dt_now;
+
+            return if is_holiday($dt_now);
 
             my $dt_start =
                 try { $dt_now->clone->truncate( to => 'day' )->subtract( days => 2 ); };
@@ -248,6 +254,8 @@ my $worker5 = do {
             #
             my $dt_now = try { DateTime->now( time_zone => $TIMEZONE ); };
             return unless $dt_now;
+
+            return if is_holiday($dt_now);
 
             my $dt_start =
                 try { $dt_now->clone->truncate( to => 'day' )->subtract( days => 3 ); };
@@ -445,4 +453,22 @@ sub get_where {
     my $attr = { order_by => { -asc => 'user_target_date' } };
 
     return ( $cond, $attr );
+}
+
+sub is_holiday {
+    my $date = shift;
+    return unless $date;
+
+    my $year     = $date->year;
+    my $month    = sprintf '%02d', $date->month;
+    my $day      = sprintf '%02d', $date->day;
+    my $holidays = Date::Holidays::KR::holidays($year);
+    return 1 if $holidays->{ $month . $day };
+
+    if ( my $ini = $ENV{OPENCLOSET_EXTRA_HOLIDAYS} ) {
+        my $extra_holidays = Config::INI::Reader->read_file($ini);
+        return $extra_holidays->{$year}{ $month . $day };
+    }
+
+    return;
 }

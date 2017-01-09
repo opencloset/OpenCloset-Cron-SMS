@@ -19,6 +19,8 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.008",
   "NAME" => "OpenCloset::Cron::SMS",
   "PREREQ_PM" => {
+    "Config::INI::Reader" => 0,
+    "Date::Holidays::KR" => 0,
     "DateTime" => 0,
     "FindBin" => 0,
     "Getopt::Long::Descriptive" => 0,
@@ -45,6 +47,8 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Config::INI::Reader" => 0,
+  "Date::Holidays::KR" => 0,
   "DateTime" => 0,
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
