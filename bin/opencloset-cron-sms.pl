@@ -9,6 +9,8 @@ use warnings;
 use FindBin qw( $Script );
 use Getopt::Long::Descriptive;
 
+use Config::INI::Reader;
+use Date::Holidays::KR ();
 use DateTime;
 use Try::Tiny;
 
@@ -118,7 +120,7 @@ my $worker2 = do {
                 my $to       = $user->user_info->phone || q{};
                 my $order_id = $order->id;
                 my $msg      = sprintf(
-                    qq{[열린옷장] 오늘은 %d일에 대여하신 의류 반납일입니다. 운영시간(10시~18시) 중에는 웅진빌딩 403호로 반납해 주시고, 운영 외 시간에는 22시까지 4층 엘리베이터 앞에 무인반납함에 반납해 주세요. 대여 기간 연장이 필요하신 경우, (%s)에서 대여기간을 연장해 주세요. (연장없이 무단으로 반납이 늦어지면 연체 처리 되어 하루 당 대여료의 30%%의 추가 비용이 발생합니다.) 택배로 발송하신 경우 (%s)에서 택배사, 운송장번호를 등록해 주세요. (발송알리미 미입력시 택배발송 지연으로 인해 연체처리가 될 수 있습니다.)},
+                    qq{[열린옷장] 오늘은 %d일에 대여하신 의류 반납일입니다. 운영시간(10시~18시) 중에는 웅진빌딩 403호로 반납해 주시고, 운영 외 시간에는 21시까지 4층 엘리베이터 앞에 무인반납함에 반납해 주세요. 대여 기간 연장이 필요하신 경우, (%s)에서 대여기간을 연장해 주세요. (연장없이 무단으로 반납이 늦어지면 연체 처리 되어 하루 당 대여료의 30%%의 추가 비용이 발생합니다.) 택배로 발송하신 경우 (%s)에서 택배사, 운송장번호를 등록해 주세요. (발송알리미 미입력시 택배발송 지연으로 인해 연체처리가 될 수 있습니다.)},
                     $order->rental_date->day,
                     "https://staff.theopencloset.net/order/$order_id/extension",
                     "https://staff.theopencloset.net/order/$order_id/return"
@@ -154,6 +156,8 @@ my $worker3 = do {
             #
             my $today = DateTime->today( time_zone => $TIMEZONE );
             return unless $today;
+
+            return if is_holiday($today);
 
             my $dt_start = $today->clone->subtract( days => 1 );
             return unless $dt_start;
@@ -199,6 +203,8 @@ my $worker4 = do {
             #
             my $dt_now = try { DateTime->now( time_zone => $TIMEZONE ); };
             return unless $dt_now;
+
+            return if is_holiday($dt_now);
 
             my $dt_start =
                 try { $dt_now->clone->truncate( to => 'day' )->subtract( days => 2 ); };
@@ -248,6 +254,8 @@ my $worker5 = do {
             #
             my $dt_now = try { DateTime->now( time_zone => $TIMEZONE ); };
             return unless $dt_now;
+
+            return if is_holiday($dt_now);
 
             my $dt_start =
                 try { $dt_now->clone->truncate( to => 'day' )->subtract( days => 3 ); };
@@ -445,4 +453,22 @@ sub get_where {
     my $attr = { order_by => { -asc => 'user_target_date' } };
 
     return ( $cond, $attr );
+}
+
+sub is_holiday {
+    my $date = shift;
+    return unless $date;
+
+    my $year     = $date->year;
+    my $month    = sprintf '%02d', $date->month;
+    my $day      = sprintf '%02d', $date->day;
+    my $holidays = Date::Holidays::KR::holidays($year);
+    return 1 if $holidays->{ $month . $day };
+
+    if ( my $ini = $ENV{OPENCLOSET_EXTRA_HOLIDAYS} ) {
+        my $extra_holidays = Config::INI::Reader->read_file($ini);
+        return $extra_holidays->{$year}{ $month . $day };
+    }
+
+    return;
 }

@@ -1,6 +1,8 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - 반납 당일 문자 메세지 내용 변경 (#22)
+    - 공휴일에는 D+1, D+2, D+3 문자를 발송하지 않음 (#24)
 
 0.010     2016-10-07 18:13:46+09:00 Asia/Seoul
     - order.ignore_sms 주문서는 SMS 를 보내지 않음 (#20)
