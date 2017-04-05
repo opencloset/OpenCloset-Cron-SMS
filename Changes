@@ -1,6 +1,8 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+
+0.012     2017-03-02 18:29:40+09:00 Asia/Seoul
     - 링크 오작동 예방을 위해 URL 앞뒤의 괄호를 제거
     - 반납일(D-day) 의 문자메세지 내용변경
 
