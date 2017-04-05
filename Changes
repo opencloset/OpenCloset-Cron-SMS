@@ -1,6 +1,8 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+
+0.013     2017-04-05 14:02:27+09:00 Asia/Seoul
     - 반납일(D-day) 의 문자메세지 내용변경
 
 0.012     2017-03-02 18:29:40+09:00 Asia/Seoul
