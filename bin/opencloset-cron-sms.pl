@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/env perl
 # PODNAME:  opencloset-cron-sms.pl
 # ABSTRACT: OpenCloset cron sms script
 
