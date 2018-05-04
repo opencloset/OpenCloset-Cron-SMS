@@ -1,6 +1,8 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+
+0.101     2018-05-04 16:55:28+09:00 Asia/Seoul
     - travis-ci 에서 docker image 를 build
 
 0.100     2017-11-02 15:17:05+09:00 Asia/Seoul
