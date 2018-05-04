@@ -2,6 +2,7 @@ Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
     - Add Dockerfile
+    - travis-ci 에서 docker image 를 build
 
 0.014     2017-05-01 17:02:51+09:00 Asia/Seoul
     - D-1 내용 변경 (#27)
