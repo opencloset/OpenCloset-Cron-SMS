@@ -1,6 +1,7 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+    - 기증신청 30일 후에도 반송신청이 되지 않았을때에 안내문자를 발송 (#34)
 
 0.101     2018-05-04 16:55:28+09:00 Asia/Seoul
     - travis-ci 에서 docker image 를 build
