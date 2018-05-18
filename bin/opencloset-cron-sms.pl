@@ -403,11 +403,66 @@ my $worker7 = do {
     );
 };
 
+my $worker8 = do {
+    my $w;
+    $w = OpenCloset::Cron::Worker->new(
+        name      => 'notify_donation_30d_after', # 기증신청 후 30일
+        cron      => '20 11 * * *',
+        time_zone => $TIMEZONE,
+        cb        => sub {
+            my $name = $w->name;
+            my $cron = $w->cron;
+            AE::log( info => "$name\[$cron] launched" );
+
+            my $today = DateTime->today( time_zone => $TIMEZONE );
+            my $target_date = $today->clone->subtract( days => 30 ); # -30d
+            my $parser      = $DB->storage->datetime_parser;
+            my $rs          = $DB->resultset('DonationForm')->search(
+                {
+                    create_date => {
+                        -between => [
+                            $parser->format_datetime($target_date),
+                            $parser->format_datetime( $target_date->clone->add( days => 1 ) )
+                        ]
+                    },
+                    status => 'delivered',
+                }
+            );
+
+            while ( my $form = $rs->next ) {
+                my $id   = $form->id;
+                my $name = $form->name;
+                my $to   = $form->phone;
+                my $msg  = <<EOM;
+[사단법인 열린옷장] $name 님, 안녕하세요.
+1개월 전에 발송해드린 기증상자 잘 받으셨나요? 편하게 기증하시도록 상자 반송 방법을 다시 한번 안내드리고자 연락드렸습니다.
+
+https://donation.theopencloset.net/forms/$id/return?authorized=1
+
+1. 위 링크를 통해 발송 가능한 날짜를 선택해주세요.
+2. 선택하신 날짜에 기사님이 방문하시면 기증상자를 전달해주세요.
+
+소중히 보내주신 기증의류와 이야기는 새로운 시작을 준비하는 청년들에게 큰 응원이 됩니다. 감사합니다.
+
+-모두를 위한 공유옷장, 열린옷장 드림
+EOM
+                my $log = sprintf( 'id(%d), name(%s), phone(%s)', $id, $name, $to );
+                AE::log( info => $log );
+                send_sms( $to, $msg ) if $to;
+            }
+
+            AE::log( info => "$name\[$cron] finished" );
+        }
+    );
+};
+
 my $cron = OpenCloset::Cron->new(
     aelog   => $APP_CONF->{aelog},
     port    => $APP_CONF->{port},
     delay   => $APP_CONF->{delay},
-    workers => [ $worker1, $worker2, $worker3, $worker4, $worker5, $worker6, $worker7 ],
+    workers => [
+        $worker1, $worker2, $worker3, $worker4, $worker5, $worker6, $worker7, $worker8
+    ],
 );
 $cron->start;
 
