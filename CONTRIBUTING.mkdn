@@ -1,7 +1,5 @@
 # OpenCloset-Cron-SMS #
 
-[![Build Status](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS.svg?branch=0.015)](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS)
-
 ## HOW TO CONTRIBUTE
 
 Thank you for considering contributing to this distribution.  This file
