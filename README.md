@@ -1,7 +1,7 @@
 # OpenCloset-Cron-SMS #
 
 [![Build
-Status](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS.svg?branch=release-0.101)](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS)
+Status](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS.svg?branch=release-0.102)](https://travis-ci.org/opencloset/OpenCloset-Cron-SMS)
 
 각종 상태별 문자메세지를 발송하는 cronjob
 
