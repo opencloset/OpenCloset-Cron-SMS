@@ -361,7 +361,7 @@ my $worker7 = do {
     my $w;
     $w = OpenCloset::Cron::Worker->new(
         name      => 'notify_today_preserved_volunteers',
-        cron      => '00 08 * * *',
+        cron      => '00 15 * * *',
         time_zone => $TIMEZONE,
         cb        => sub {
             my $name = $w->name;
@@ -371,8 +371,11 @@ my $worker7 = do {
             #
             # get today datetime
             #
-            my $dt_start = DateTime->now( time_zone => $TIMEZONE )->truncate( to => 'day' );
-            my $dt_end = $dt_start->clone->add( days => 1 );
+            my $today = Datetime->today( time_zone => $TIMEZONE );
+            my $dt_start = $today->clone->add(days => 1);
+            my $dt_end = $today->clone->add(days => 2);
+            # my $dt_start = DateTime->now( time_zone => $TIMEZONE )->truncate( to => 'day' );
+            # my $dt_end = $dt_start->clone->add( days => 1 );
             my $parser = $DB->storage->datetime_parser;
             my $rs     = $DB->resultset('VolunteerWork')->search(
                 {
@@ -387,9 +390,14 @@ my $worker7 = do {
             while ( my $row = $rs->next ) {
                 my $volunteer = $row->volunteer;
                 ( my $to = $volunteer->phone ) =~ s/-//g;
-                my $msg = sprintf(
-                    '[열린옷장] %s님 안녕하세요 좋은 아침입니다:) 오늘은 열린옷장과 함께 봉사활동 하는 날인 것 잊지 않으셨죠? 이따 밝은 모습으로 뵙겠습니다!',
-                    $volunteer->name );
+                my $volunteer_name = $volunteer->name;
+                my $msg = <<EOT;
+[열린옷장 봉사안내]
+$volunteer_name 님 안녕하세요. 내일은 열린옷장과 함께 봉사활동하는 날인 것 잊지 않으셨죠? 건강한 모습으로 뵙겠습니다.
+
+* 활동장소 : 건대앞 열린옷장 5층으로 방문해주세요. (서울시 광진구 아차산로 213 502호)
+* 마스크 착용 필수 / 방문시 체온측정합니다.
+EOT
 
                 my $log = sprintf( 'id(%d), volunteer_id(%d), name(%s), phone(%s)',
                     $row->id, $volunteer->id, $volunteer->name, $to );
