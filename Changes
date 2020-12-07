@@ -1,6 +1,8 @@
 Revision history for {{ $dist->name }}
 
 {{ $NEXT }}
+
+0.106     2020-12-07 22:16:49+09:00 Asia/Seoul
     - 봉사활동 report sms 문자 중지 (#42)
 
 0.105     2020-11-28 11:56:16+09:00 Asia/Seoul
